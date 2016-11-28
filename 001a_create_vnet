@@ -1,0 +1,273 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "networkSecurityGroupName-public": {
+      "defaultValue": "TestVNet-nsg-public",
+      "metadata": {
+        "description": "Public NSG for VNet"
+      },
+      "type": "string"
+    },
+    "networkSecurityGroupName-private": {
+      "defaultValue": "TestVNet-nsg-private",
+      "metadata": {
+        "description": "Private NSG for VNet"
+      },
+      "type": "string"
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "TestVNet",
+      "metadata": {
+        "description": "VNet name"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "192.168.50.0/24",
+      "metadata": {
+        "description": "Address prefix"
+      }
+    },
+    "subnet1Prefix": {
+      "type": "string",
+      "defaultValue": "192.168.50.0/27",
+      "metadata": {
+        "description": "Subnet 1 Prefix - Public"
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "defaultValue": "Public-SN1",
+      "metadata": {
+        "description": "Subnet 1 - Public"
+      }
+    },
+    "subnet2Prefix": {
+      "type": "string",
+      "defaultValue": "192.168.50.32/27",
+      "metadata": {
+        "description": "Subnet 2 Prefix - Public"
+      }
+    },
+    "subnet2Name": {
+      "type": "string",
+      "defaultValue": "Public-SN2",
+      "metadata": {
+        "description": "Subnet 2 - Public"
+      }
+    },
+    "subnet3Prefix": {
+      "type": "string",
+      "defaultValue": "192.168.50.96/27",
+      "metadata": {
+        "description": "Subnet 3 Prefix - Private"
+      }
+    },
+    "subnet3Name": {
+      "type": "string",
+      "defaultValue": "Private-SN1",
+      "metadata": {
+        "description": "Subnet 3 - Private"
+      }
+    },
+    "subnet4Prefix": {
+      "type": "string",
+      "defaultValue": "192.168.50.128/27",
+      "metadata": {
+        "description": "Subnet 4 Prefix - Private"
+      }
+    },
+    "subnet4Name": {
+      "type": "string",
+      "defaultValue": "Private-SN4",
+      "metadata": {
+        "description": "Subnet 4 - Private"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "storageaccountskanskanew",
+      "metadata": {
+        "description": "Storage Account Name"
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS", 
+      "metadata": {
+        "description": "Storage Account Type"
+      }
+    }
+  },
+  "variables": {
+    "apiVersion": "2015-06-15",
+    "location":  "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('storageAccountName')]",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "[parameters('storageAccountType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[variables('location')]",
+      "name": "[parameters('networkSecurityGroupName-public')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "HTTP_private",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTPS_private",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "RDP_private",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389",
+              "direction": "Inbound",
+              "priority": 120,
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "83.244.199.2/32",
+              "sourcePortRange": "*"
+            }
+          }
+        ]
+      },
+      "type": "Microsoft.Network/networkSecurityGroups"
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[variables('location')]",
+      "name": "[parameters('networkSecurityGroupName-private')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "HTTP_private",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTPS_private",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "RDP_private",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "83.244.199.2/32",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      },
+      "type": "Microsoft.Network/networkSecurityGroups"
+    },
+
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[resourceGroup().location]",
+      "name": "[parameters('vnetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName-public'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName-private'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName-public'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('subnet2Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet2Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName-public'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('subnet3Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet3Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName-private'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('subnet4Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet4Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName-private'))]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
